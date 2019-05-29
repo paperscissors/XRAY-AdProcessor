@@ -10,9 +10,7 @@ class AdProcessor:
         self.filename_uuid = str(uuid.uuid4())
         self.episode = self.load(episode)
         self.preroll = self.load(preroll)
-        self.postroll = False
-        if postroll:
-            self.postroll = self.load(postroll)
+        self.postroll = self.load(postroll) if postroll else False
 
     def detect_leading_silence(self, sound, silence_threshold=-50.0, chunk_size=10):
         '''

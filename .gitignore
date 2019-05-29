@@ -1,5 +1,6 @@
 bin/
 include/
+__pycache__/
 lib/
 *.mp3
 *.m4a
