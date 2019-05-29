@@ -10,8 +10,9 @@ class AdProcessor:
         self.filename_uuid = str(uuid.uuid4())
         self.episode = self.load(episode)
         self.preroll = self.load(preroll)
-        self.postroll = self.load(postroll) if postroll else False
+        self.postroll = self.load(postroll) if postroll else False # postroll is optional
 
+    # detect leading silence on audio, so we can cut out awkward amounts of silence on beginning/end of files
     def detect_leading_silence(self, sound, silence_threshold=-50.0, chunk_size=10):
         '''
         sound is a pydub.AudioSegment
@@ -28,23 +29,27 @@ class AdProcessor:
 
         return trim_ms
 
+    # normalize sound amplitude so we don't get dips in audio levels
     def normalize(self, sound):
         change_in_dBFS = self.amplitude - sound.dBFS
 
         return sound.apply_gain(change_in_dBFS)
 
-    def load(self, filename):
-        file_prefix, file_extension = os.path.splitext(filename)
-        audio = AudioSegment.from_file(os.path.join(sys.path[0], filename), file_extension.replace('.', ''))
-        normalized_audio = self.normalize(audio)
-        return self.trim_silence(audio)
-
+    # trim silence on beginning and end of audio; reverse audio to get end silence
     def trim_silence(self, audio):
         start_trim = self.detect_leading_silence(audio)
         end_trim = self.detect_leading_silence(audio.reverse())
         duration = len(audio)
         return audio[start_trim:duration-end_trim]
 
+    # load audio file, run normalize and trim silence functions
+    def load(self, filename):
+        file_prefix, file_extension = os.path.splitext(filename)
+        audio = AudioSegment.from_file(os.path.join(sys.path[0], filename), file_extension.replace('.', ''))
+        normalized_audio = self.normalize(audio)
+        return self.trim_silence(audio)
+
+    # actually concatenate spots and episode file. can override filename or use default with uuid 
     def export(self, filename_override=False):
         files = [self.preroll, self.episode]
 
