@@ -7,7 +7,18 @@ from rq import Worker, Queue, Connection
 import sentry_sdk
 from sentry_sdk.integrations.rq import RqIntegration
 
-sentry_sdk.init("https://a25edf001843418280ff13b0ee3ce61a@sentry.io/1471037", integrations=[RqIntegration()])
+from dotenv import load_dotenv
+load_dotenv()
+
+# OR, the same with increased verbosity:
+load_dotenv(verbose=True)
+
+# OR, explicitly providing path to '.env'
+from pathlib import Path  # python3 only
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
+
+sentry_sdk.init(os.getenv("SENTRY_DSN"), integrations=[RqIntegration()])
 
 listen = ['default']
 
