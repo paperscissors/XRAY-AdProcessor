@@ -6,3 +6,4 @@ lib/
 *.m4a
 .DS_Store
 .Python
+.env
