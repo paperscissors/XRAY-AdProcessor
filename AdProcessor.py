@@ -4,7 +4,7 @@ import sys
 from pydub import AudioSegment
 
 
-class AudioProcessor:
+class AdProcessor:
     def __init__(self, episode, preroll, postroll=False, amplitude=-20):
         self.amplitude = amplitude
         self.filename_uuid = str(uuid.uuid4())
@@ -38,14 +38,14 @@ class AudioProcessor:
     def load(self, filename):
         file_prefix, file_extension = os.path.splitext(filename)
         audio = AudioSegment.from_file(os.path.join(sys.path[0], filename), file_extension.replace('.', ''))
-        return self.normalize(audio)
+        normalized_audio = self.normalize(audio)
+        return self.trim_silence(audio)
 
-    def trim_silence(self):
-        start_trim = self.detect_leading_silence(self.episode)
-        end_trim = self.detect_leading_silence(self.episode.reverse())
-        duration = len(self.episode)
-        self.episode = self.episode[start_trim:duration-end_trim]
-        return self
+    def trim_silence(self, audio):
+        start_trim = self.detect_leading_silence(audio)
+        end_trim = self.detect_leading_silence(audio.reverse())
+        duration = len(audio)
+        return audio[start_trim:duration-end_trim]
 
     def export(self, filename_override=False):
         files = [self.preroll, self.episode]
