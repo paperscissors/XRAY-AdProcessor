@@ -5,12 +5,14 @@ from pydub import AudioSegment
 
 
 class AdProcessor:
-    def __init__(self, episode, preroll, postroll=False, amplitude=-20):
+    def __init__(self, episode, preroll, postroll=False, filename=False, amplitude=-20):
         self.amplitude = amplitude
         self.filename_uuid = str(uuid.uuid4())
         self.episode = self.load(episode)
         self.preroll = self.load(preroll)
         self.postroll = self.load(postroll) if postroll else False # postroll is optional
+
+        self.export(filename)
 
     # detect leading silence on audio, so we can cut out awkward amounts of silence on beginning/end of files
     def detect_leading_silence(self, sound, silence_threshold=-50.0, chunk_size=10):
@@ -44,12 +46,13 @@ class AdProcessor:
 
     # load audio file, run normalize and trim silence functions
     def load(self, filename):
+        os.chdir(os.path.dirname(__file__))
         file_prefix, file_extension = os.path.splitext(filename)
-        audio = AudioSegment.from_file(os.path.join(sys.path[0], filename), file_extension.replace('.', ''))
+        audio = AudioSegment.from_file(os.getcwd()+'/process/'+filename, file_extension.replace('.', ''))
         normalized_audio = self.normalize(audio)
         return self.trim_silence(audio)
 
-    # actually concatenate spots and episode file. can override filename or use default with uuid 
+    # actually concatenate spots and episode file. can override filename or use default with uuid
     def export(self, filename_override=False):
         files = [self.preroll, self.episode]
 
@@ -62,4 +65,5 @@ class AdProcessor:
             combined = combined.append(audio, crossfade=50)
 
         filename = filename_override if filename_override else "episode-"+self.filename_uuid+".mp3"
-        return combined.export(filename, format="mp3", bitrate="256k")
+        os.chdir(os.path.dirname(__file__))
+        return combined.export(os.getcwd()+'/results/'+filename, format="mp3", bitrate="256k")
