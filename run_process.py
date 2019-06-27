@@ -1,6 +1,7 @@
 from AdProcessor import AdProcessor
 from urllib import request, parse
 import json
+import os
 
 from dotenv import load_dotenv
 load_dotenv()
