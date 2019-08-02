@@ -117,6 +117,9 @@ def run_process(episode_id, preroll_id, postroll_id=False):
         try:
             with connection.cursor() as cursor:
                 cursor.execute("INSERT INTO `episodes_with_ads` (`podcast_id`, `episode_id`, `preroll_id`, `postroll_id`, `uri`) VALUES (%s,%s,%s,%s,%s)", (str(stream_uri[2]), str(episode_id), str(preroll_id), postroll_id, uploaded_uri))
+
+            connection.commit()
+            
         finally:
             connection.close()
 
