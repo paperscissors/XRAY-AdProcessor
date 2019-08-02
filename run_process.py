@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import pymysql.cursors
+import shutil
 import uuid
 
 from dotenv import load_dotenv
@@ -108,6 +109,11 @@ def run_process(episode_id, preroll_id, postroll_id=False):
         process = AdProcessor(stream_file, preroll_file, postroll_file, final_filename)
         # when process is complete, upload to spaces again
         # clean up files
+        try:
+           shutil.rmtree(process_dir+working_directory)
+        except:
+           print('Error while deleting directory')
+
     except Exception as e:
         notify('Ads server failed: ' + description + ': ' +  str(e))
 
