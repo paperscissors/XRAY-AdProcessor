@@ -69,15 +69,15 @@ def run_process(episode_id, preroll_id, postroll_id=False):
                             aws_secret_access_key='SECRET_KEY')
     if stream_uri:
         stream_file = process_dir+working_directory+'episode.mp3'
-        s3.download_file('xraystreaming', stream_uri, stream_file)
+        client.download_file('xraystreaming', stream_uri, stream_file)
 
     if preroll_uri:
         preroll_file = process_dir+working_directory+'preroll.mp3'
-        s3.download_file('xraystreaming', preroll_uri, preroll_file)
+        client.download_file('xraystreaming', preroll_uri, preroll_file)
 
     if preroll_uri:
         preroll_file = process_dir+working_directory+'postroll.mp3'
-        s3.download_file('xraystreaming', postroll_uri, preroll_file)
+        client.download_file('xraystreaming', postroll_uri, preroll_file)
     # process
 
     # save filename + IDs to ad episode table
