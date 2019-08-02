@@ -25,10 +25,10 @@ def run_process(episode_id, preroll_id, postroll_id=False):
     stream_uri = False
     preroll_uri = False
     postroll_uri = False
+    process_dir = os.getcwd()+'/process/'
+    working_directory = str(uuid.uuid4())+"/"
 
-    working_directory = str(uuid.uuid4())
-
-    os.mkdir(working_directory)
+    os.mkdir(process_dir+working_directory)
 
     db_user = os.getenv("DATABASE_USER")
     db_password = os.getenv("DATABASE_PASSWORD")
@@ -59,8 +59,6 @@ def run_process(episode_id, preroll_id, postroll_id=False):
         connection.close()
 
     # download source files
-    process_dir = os.getcwd()+'process/'
-
     session = boto3.session.Session()
     client = session.client('s3',
                             region_name=os.getenv('SPACES_REGION'),
