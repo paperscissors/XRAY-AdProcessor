@@ -61,12 +61,12 @@ def run_process(episode_id, preroll_id, postroll_id=False):
         try:
             description += ", preroll: "+preroll_uri[1]
         except NameError:
-            print "foo"
+            print("preroll_uri not set")
 
         try:
             description += ", postroll: "+postroll_uri[1]
         except NameError:
-            print "foo"
+            print("postroll_uri not set")
 
     finally:
         connection.close()
