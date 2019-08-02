@@ -28,6 +28,8 @@ def run_process(episode_id, preroll_id, postroll_id=False):
 
     working_directory = str(uuid.uuid4())
 
+    os.mkdir(working_directory)
+
     db_user = os.getenv("DATABASE_USER")
     db_password = os.getenv("DATABASE_PASSWORD")
     db_name = os.getenv("DATABASE")
