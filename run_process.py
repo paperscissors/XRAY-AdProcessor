@@ -40,20 +40,32 @@ def run_process(episode_id, preroll_id, postroll_id=False):
 
     try:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT stream_url from episodes WHERE id=%s", episode_id)
+            cursor.execute("SELECT stream_url, name from episodes WHERE id=%s", episode_id)
 
             stream_uri = cursor.fetchone()
 
         with connection.cursor() as cursor:
-            cursor.execute("SELECT uri from ad_spots WHERE id=%s", preroll_id)
+            cursor.execute("SELECT uri, name from ad_spots WHERE id=%s", preroll_id)
 
             preroll_uri = cursor.fetchone()
 
         if postroll_id:
             with connection.cursor() as cursor:
-                cursor.execute("SELECT uri from ad_spots WHERE id=%s", postroll_id          )
+                cursor.execute("SELECT uri, name from ad_spots WHERE id=%s", postroll_id          )
 
                 postroll_uri = cursor.fetchone()
+
+        description = 'episode "' + stream_uri[1] + '"'
+
+        try:
+            description += ", preroll: "+preroll_uri[1]
+        except NameError:
+            print "foo"
+
+        try:
+            description += ", postroll: "+postroll_uri[1]
+        except NameError:
+            print "foo"
 
     finally:
         connection.close()
@@ -97,9 +109,9 @@ def run_process(episode_id, preroll_id, postroll_id=False):
         # when process is complete, upload to spaces again
         # clean up files
     except Exception as e:
-        notify('Ads server failed: ' + str(e))
+        notify('Ads server failed: ' + description + ': ' +  str(e))
 
-    notify('Ads server was successful '+episode_id)
+    notify('Ads server successfully merged '+description)
 
     # send notification to slack
 def notify(message):
