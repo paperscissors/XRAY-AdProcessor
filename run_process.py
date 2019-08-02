@@ -73,9 +73,9 @@ def run_process(episode_id, preroll_id, postroll_id=False):
         preroll_file = process_dir+working_directory+'preroll.mp3'
         client.download_file('xraystreaming', preroll_uri[0], preroll_file)
 
-    if preroll_uri:
-        preroll_file = process_dir+working_directory+'postroll.mp3'
-        client.download_file('xraystreaming', postroll_uri[0], preroll_file)
+    if postroll_uri:
+        postroll_file = process_dir+working_directory+'postroll.mp3'
+        client.download_file('xraystreaming', postroll_uri[0], postroll_file)
     # process
 
     # save filename + IDs to ad episode table
