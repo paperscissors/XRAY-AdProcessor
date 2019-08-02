@@ -109,7 +109,7 @@ def run_process(episode_id, preroll_id, postroll_id=False):
         # when process is complete, upload to spaces again
         client.upload_file(os.getcwd()+'/results/'+final_filename,  # Path to local file
                    'xraystreaming',  # Name of Space
-                   stream_uri[2]+'/'+episode_id+'/processed/'+final_filename)  # Name for remote file
+                   str(stream_uri[2])+'/'+str(episode_id)+'/processed/'+final_filename)  # Name for remote file
 
         # save filename + IDs to ad episode table
         # clean up files
