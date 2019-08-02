@@ -63,10 +63,10 @@ def run_process(episode_id, preroll_id, postroll_id=False):
 
     session = boto3.session.Session()
     client = session.client('s3',
-                            region_name='nyc3',
-                            endpoint_url='https://nyc3.digitaloceanspaces.com',
-                            aws_access_key_id='ACCESS_KEY',
-                            aws_secret_access_key='SECRET_KEY')
+                            region_name=os.getenv('SPACES_REGION'),
+                            endpoint_url=os.getenv('SPACES_ENDPOINT'),
+                            aws_access_key_id=os.getenv('SPACES_ACCESS_KEY'),
+                            aws_secret_access_key=os.getenv('SPACES_SECRET'))
     if stream_uri:
         stream_file = process_dir+working_directory+'episode.mp3'
         client.download_file('xraystreaming', stream_uri[0], stream_file)
