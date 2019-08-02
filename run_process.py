@@ -111,6 +111,8 @@ def run_process(episode_id, preroll_id, postroll_id=False):
                    'xraystreaming',  # Name of Space
                    uploaded_uri)  # Name for remote file
 
+        client.put_object_acl( ACL='public-read', Bucket='xraystreaming', Key=uploaded_uri )
+
         # save filename + IDs to ad episode table
         connection = pymysql.connect(db_host,db_user,db_password,db_name, ssl={"fake_flag_to_enable_tls":True})
 
@@ -119,7 +121,7 @@ def run_process(episode_id, preroll_id, postroll_id=False):
                 cursor.execute("INSERT INTO `episodes_with_ads` (`podcast_id`, `episode_id`, `preroll_id`, `postroll_id`, `uri`) VALUES (%s,%s,%s,%s,%s)", (str(stream_uri[2]), str(episode_id), str(preroll_id), postroll_id, uploaded_uri))
 
             connection.commit()
-            
+
         finally:
             connection.close()
 
@@ -132,7 +134,7 @@ def run_process(episode_id, preroll_id, postroll_id=False):
     except Exception as e:
         notify('Ads server failed: ' + description + ': ' +  str(e))
 
-    notify('Ads server successfully processed '+description)
+    notify('Ads server successfully processed '+description + "\n https://xraystreaming.sfo2.digitaloceanspaces.com/"+uploaded_uri)
 
 
     # send notification to slack
