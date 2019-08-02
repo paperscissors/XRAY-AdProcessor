@@ -7,6 +7,7 @@ from pydub import AudioSegment
 class AdProcessor:
     def __init__(self, episode, preroll, postroll=False, filename=False, amplitude=-20):
         self.amplitude = amplitude
+        self.working_directory = working_directory
         self.filename_uuid = str(uuid.uuid4())
         self.episode = self.load(episode)
         self.preroll = self.load(preroll)
@@ -48,7 +49,7 @@ class AdProcessor:
     def load(self, filename):
         os.chdir(os.path.dirname(__file__))
         file_prefix, file_extension = os.path.splitext(filename)
-        audio = AudioSegment.from_file(os.getcwd()+'/process/'+filename, file_extension.replace('.', ''))
+        audio = AudioSegment.from_file(filename, file_extension.replace('.', ''))
         normalized_audio = self.normalize(audio)
         return self.trim_silence(audio)
 
@@ -66,4 +67,7 @@ class AdProcessor:
 
         filename = filename_override if filename_override else "episode-"+self.filename_uuid+".mp3"
         os.chdir(os.path.dirname(__file__))
-        return combined.export(os.getcwd()+'/results/'+filename, format="mp3", bitrate="256k")
+        combined.export(os.getcwd()+'/results/'+filename, format="mp3", bitrate="320k")
+        # i guess we can upload from here
+        
+        return True
