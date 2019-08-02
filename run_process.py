@@ -35,7 +35,7 @@ def run_process(episode_id, preroll_id, postroll_id=False):
     db_name = os.getenv("DATABASE")
     db_host = os.getenv('DATABASE_HOST')
 
-    connection = pymysql.connect(db_host,db_user,db_password,db_name)
+    connection = pymysql.connect(db_host,db_user,db_password,db_name, ssl={"fake_flag_to_enable_tls":True})
     # query ids
 
     try:
