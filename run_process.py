@@ -39,21 +39,21 @@ def run_process(episode_id, preroll_id, postroll_id=False):
     # query ids
 
     try:
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT stream_url from episodes WHERE id=%s", episode_id)
-
-        stream_uri = cursor.fetchone()
-
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT uri from ad_spots WHERE id=%s", preroll_id)
-
-        preroll_uri = cursor.fetchone()
-
-    if postroll_id:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT uri from ad_spots WHERE id=%s", postroll_id          )
+            cursor.execute("SELECT stream_url from episodes WHERE id=%s", episode_id)
 
-            postroll_uri = cursor.fetchone()
+            stream_uri = cursor.fetchone()
+
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT uri from ad_spots WHERE id=%s", preroll_id)
+
+            preroll_uri = cursor.fetchone()
+
+        if postroll_id:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT uri from ad_spots WHERE id=%s", postroll_id          )
+
+                postroll_uri = cursor.fetchone()
 
     finally:
         connection.close()
