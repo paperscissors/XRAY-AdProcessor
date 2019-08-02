@@ -68,60 +68,63 @@ def run_process(episode_id, preroll_id, postroll_id=False):
         except NameError:
             print("postroll_uri not set")
 
+        # download source files
+        session = boto3.session.Session()
+        client = session.client('s3',
+                                region_name=os.getenv('SPACES_REGION'),
+                                endpoint_url=os.getenv('SPACES_ENDPOINT'),
+                                aws_access_key_id=os.getenv('SPACES_ACCESS_KEY'),
+                                aws_secret_access_key=os.getenv('SPACES_SECRET'))
+        if stream_uri:
+            stream_file = process_dir+working_directory+'episode.mp3'
+            client.download_file('xraystreaming', stream_uri[0], stream_file)
+
+        if preroll_uri:
+            preroll_file = process_dir+working_directory+'preroll.mp3'
+            client.download_file('xraystreaming', preroll_uri[0], preroll_file)
+
+        if postroll_uri:
+            postroll_file = process_dir+working_directory+'postroll.mp3'
+            client.download_file('xraystreaming', postroll_uri[0], postroll_file)
+
+        # process
+        check = Path(stream_file)
+        if not check.is_file():
+            stream_file = False
+
+        check = Path(preroll_file)
+        if not check.is_file():
+            preroll_file = False
+
+        check = Path(postroll_file)
+        if not check.is_file():
+            postroll_file = False
+
+        try:
+            final_filename = 'episode-'+str(uuid.uuid4())+'.mp3'
+            process = AdProcessor(stream_file, preroll_file, postroll_file, final_filename)
+            uploaded_uri = 'podcasts/'+str(stream_uri[2])+'/'+str(episode_id)+'/processed/'+final_filename
+            # when process is complete, upload to spaces again
+            client.upload_file(os.getcwd()+'/results/'+final_filename,  # Path to local file
+                       'xraystreaming',  # Name of Space
+                       uploaded_uri)  # Name for remote file
+
+            # save filename + IDs to ad episode table
+            with connection.cursor() as cursor:
+                cursor.execute("INSERT INTO `episodes_with_ads` (`podcast_id`, `episode_id`, `preroll_id`, `postroll_id`, `uri`) VALUES (%s,%s,%s,%s,%s)", (str(stream_uri[2]), str(episode_id), str(preroll_id), str(postroll_id), uploaded_uri))
+
+            # clean up files
+            try:
+               shutil.rmtree(process_dir+working_directory)
+            except:
+               print('Error while deleting directory')
+
+        except Exception as e:
+            notify('Ads server failed: ' + description + ': ' +  str(e))
+
+        notify('Ads server successfully processed '+description)
     finally:
         connection.close()
-
-    # download source files
-    session = boto3.session.Session()
-    client = session.client('s3',
-                            region_name=os.getenv('SPACES_REGION'),
-                            endpoint_url=os.getenv('SPACES_ENDPOINT'),
-                            aws_access_key_id=os.getenv('SPACES_ACCESS_KEY'),
-                            aws_secret_access_key=os.getenv('SPACES_SECRET'))
-    if stream_uri:
-        stream_file = process_dir+working_directory+'episode.mp3'
-        client.download_file('xraystreaming', stream_uri[0], stream_file)
-
-    if preroll_uri:
-        preroll_file = process_dir+working_directory+'preroll.mp3'
-        client.download_file('xraystreaming', preroll_uri[0], preroll_file)
-
-    if postroll_uri:
-        postroll_file = process_dir+working_directory+'postroll.mp3'
-        client.download_file('xraystreaming', postroll_uri[0], postroll_file)
-
-    # process
-    check = Path(stream_file)
-    if not check.is_file():
-        stream_file = False
-
-    check = Path(preroll_file)
-    if not check.is_file():
-        preroll_file = False
-
-    check = Path(postroll_file)
-    if not check.is_file():
-        postroll_file = False
-
-    try:
-        final_filename = 'episode-'+str(uuid.uuid4())+'.mp3'
-        process = AdProcessor(stream_file, preroll_file, postroll_file, final_filename)
-        # when process is complete, upload to spaces again
-        client.upload_file(os.getcwd()+'/results/'+final_filename,  # Path to local file
-                   'xraystreaming',  # Name of Space
-                   str(stream_uri[2])+'/'+str(episode_id)+'/processed/'+final_filename)  # Name for remote file
-
-        # save filename + IDs to ad episode table
-        # clean up files
-        try:
-           shutil.rmtree(process_dir+working_directory)
-        except:
-           print('Error while deleting directory')
-
-    except Exception as e:
-        notify('Ads server failed: ' + description + ': ' +  str(e))
-
-    notify('Ads server successfully processed '+description)
 
     # send notification to slack
 def notify(message):
