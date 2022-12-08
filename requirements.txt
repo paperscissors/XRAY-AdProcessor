@@ -1,5 +1,5 @@
 boto3==1.9.199
-certifi==2019.3.9
+certifi==2022.12.7
 Click==7.0
 Flask==1.0.3
 itsdangerous==1.1.0
